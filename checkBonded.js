@@ -9,7 +9,7 @@ const main = async () => {
     const startRound = prompt("Start round: ")
     const endRound = prompt("End round: ")
 
-    const provider = new Web3.providers.WebsocketProvider("wss://mainnet.infura.io/ws")
+    const provider = new Web3.providers.WebsocketProvider("ws://localhost:8546")
     const web3 = new Web3()
     web3.setProvider(provider)
 
@@ -23,27 +23,30 @@ const main = async () => {
     const startBlock = startRound * roundLength
     const endBlock = (endRound * roundLength) + roundLength
 
+    const begRound = 960
+    const begBlock = begRound * roundLength
+
     const pastEvents = await bondingManager.getPastEvents("Bond", {
-        fromBlock: startBlock,
+        fromBlock: begBlock,
         toBlock: endBlock
     })
 
-    const data = await promisify(fs.readFile)("bonded.json")
-    const bonded = JSON.parse(data)
-
+    let bonded = {}
     let newBonded = 0
 
     pastEvents.forEach(e => {
         const delegator = e.returnValues.delegator
+        const block = parseInt(e.blockNumber)
 
         if (!(delegator in bonded)) {
-            console.log(`New delegator ${delegator}`)
             bonded[delegator] = true
-            newBonded++
+
+            if (block >= startBlock) {
+                console.log(`New delegator ${delegator}`)
+                newBonded++
+            }
         }
     })
-
-    await promisify(fs.writeFile)("bonded.json", JSON.stringify(bonded, null, 2))
 
     console.log(`${newBonded} new bonded accounts`)
 }

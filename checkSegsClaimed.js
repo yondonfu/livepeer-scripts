@@ -9,7 +9,7 @@ const main = async () => {
     const startRound = prompt("Start round: ")
     const endRound = prompt("End round: ")
 
-    const provider = new Web3.providers.WebsocketProvider("wss://mainnet.infura.io/ws")
+    const provider = new Web3.providers.WebsocketProvider("ws://localhost:8546")
     const web3 = new Web3()
     web3.setProvider(provider)
 
