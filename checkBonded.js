@@ -34,7 +34,7 @@ const main = async () => {
     let bonded = {}
     let newBonded = 0
 
-    pastEvents.forEach(e => {
+    for (let e of pastEvents) {
         const delegator = e.returnValues.delegator
         const block = parseInt(e.blockNumber)
 
@@ -42,11 +42,15 @@ const main = async () => {
             bonded[delegator] = true
 
             if (block >= startBlock) {
-                console.log(`New delegator ${delegator}`)
-                newBonded++
+                const startRound = parseInt((await bondingManager.methods.getDelegator(delegator).call()).startRound)
+
+                if (startRound > 0) {
+                    console.log(`Bonded delegate: ${delegator}`)
+                    newBonded++
+                }
             }
         }
-    })
+    }
 
     console.log(`${newBonded} new bonded accounts`)
 }
